@@ -37,6 +37,54 @@ Build your own mod in the `mods` directory:
 make mod=example_mod
 ```
 
+### Translations (i18n)
+
+The game ships in English and Russian. Pick a language with the `EN | RU`
+switcher next to the mute button, or with a `?lang=<code>` query parameter
+(`index.html?lang=ru`). The choice is saved in `localStorage` and, on a first
+visit, guessed from the browser's `Accept-Language`.
+
+Translated text lives in two places:
+
+* **`locales/<code>.js`** — the interface: buttons, panes, status messages,
+  errors, the intro screen and the API reference descriptions. Each file is a
+  single `I18n.register(code, name, strings)` call. `locales/en.js` is the
+  reference locale and the canonical list of keys.
+* **`levels/locales/<code>/*.jsx`** — the levels themselves. A translated level
+  is a copy of the original with the comments and the player-facing strings
+  translated; the code, the `#BEGIN_*#` markers and the properties block must
+  stay identical, since the editor's editable regions are derived from them.
+
+Anything missing falls back to English — a locale with three translated levels
+and half a dozen UI strings works fine, it just falls back for the rest.
+
+To add a language:
+
+1. Copy `locales/en.js` to `locales/<code>.js` and translate the values (not
+   the keys). Change the first two arguments of `I18n.register` to your
+   language code and its name in that language.
+2. Add `<script charset="utf-8" src="locales/<code>.js"></script>` to
+   `index.html`, next to the other locale files. The switcher builds itself
+   from whatever is registered.
+3. Optionally copy level files into `levels/locales/<code>/` and translate
+   them. `compile_levels.sh` picks up every directory under
+   `levels/locales/` automatically — no build config to touch.
+
+In game code, translated strings are fetched with `__('some.key')`, with
+`{placeholder}` interpolation: `__('status.killedBy', {killer: 'a laser'})`.
+Level code cannot call `__()` — it runs in a sandboxed iframe with globals
+stripped — which is why levels are translated as whole files.
+
+Saved solutions are stored per language, so switching languages does not drop
+an English solution into a Russian level.
+
+### Deployment
+
+`vercel.json` builds the site with `make site`, which assembles a
+self-contained static copy of the game in `_site/`. `make site` uses the
+release launcher (debug features off) but skips the YUI compressor, so it
+needs no Java.
+
 ### Contributing Levels
 
 To add a new level, create a jsx file in [/levels/bonus](https://github.com/AlexNisnevich/untrusted/tree/master/levels/bonus) and add the level filename to the `bonusLevels` array in [game.js](https://github.com/AlexNisnevich/untrusted/blob/master/scripts/game.js#L40).

@@ -26,7 +26,7 @@ Game.prototype.validate = function(allCode, playerCode, restartingLevelFromScrip
         for (var i = 0; i < this.verbotenWords.length; i++) {
             var badWord = this.verbotenWords[i];
             if (playerCode.indexOf(badWord) > -1) {
-                throw "You are not allowed to use '" + badWord + "'!";
+                throw __('error.notAllowed', {word: badWord});
             }
         }
 
@@ -41,7 +41,8 @@ Game.prototype.validate = function(allCode, playerCode, restartingLevelFromScrip
             return line.replace(/for\s*\((.*);(.*);(.*)\)\s*{/g,
                 "for ($1, startTime = Date.now();$2;$3){" +
                     "if (Date.now() - startTime > " + game.allowedTime + ") {" +
-                        "throw '[Line " + (i+1) + "] TimeOutException: Maximum loop execution time of " + game.allowedTime + " ms exceeded.';" +
+                        "throw '" + escapeForSingleQuotes(__('error.timeout',
+                        {line: i + 1, ms: game.allowedTime})) + "';" +
                     "}");
         }).join('\n');
         allCode = "'use strict';var validateLevel,onExit,objective\n"+allCode;
@@ -76,10 +77,10 @@ Game.prototype.validate = function(allCode, playerCode, restartingLevelFromScrip
         // (if we're restarting a level after editing a script, we can't test for this
         // - nor do we care)
         if (!this._startOfStartLevelReached && !restartingLevelFromScript) {
-            throw 'startLevel() has been tampered with!';
+            throw __('error.tampered');
         }
         if (!this._endOfStartLevelReached && !restartingLevelFromScript) {
-            throw 'startLevel() returned prematurely!';
+            throw __('error.prematureReturn');
         }
         this.validateLevel = function () { return true; };
         // does validateLevel() succeed?
@@ -113,7 +114,7 @@ Game.prototype.validate = function(allCode, playerCode, restartingLevelFromScrip
         if (e instanceof this.SyntaxError) {
             var lineNum = this.findSyntaxError(allCode, e.message);
             if (lineNum) {
-                exceptionText = "[Line " + lineNum + "] " + exceptionText;
+                exceptionText = __('error.linePrefix', {line: lineNum}) + exceptionText;
             }
         }
         this.display.appendError(exceptionText);
@@ -142,7 +143,7 @@ Game.prototype.validateCallback = function(callback, throwExceptions) {
                 e.toString().indexOf("Attempt to modify private property") > -1 ||
                 e.toString().indexOf("Attempt to read private property") > -1) {
                 // display error, disable player movement
-                this.display.appendError(e.toString(), "%c{red}Please reload the level.");
+                this.display.appendError(e.toString(), "%c{red}" + __('error.reloadLevel'));
                 this.sound.playSound('static');
                 this.map.getPlayer()._canMove = false;
                 this.map._callbackValidationFailed = true;
@@ -166,7 +167,7 @@ Game.prototype.validateCallback = function(callback, throwExceptions) {
         } catch (e) {
             this._setPlayerCodeRunning(false);
             // validation failed - not much to do here but restart the level, unfortunately
-            this.display.appendError(e.toString(), "%c{red}Validation failed! Please reload the level.");
+            this.display.appendError(e.toString(), "%c{red}" + __('error.validationFailed'));
 
             // play error sound
             this.sound.playSound('static');

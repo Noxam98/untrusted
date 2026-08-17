@@ -191,14 +191,14 @@ function Player(x, y, __map, __game) {
     this.killedBy = wrapExposedMethod(function (killer) {
         if (__map._dummy) {
             // Treat player death during StartLevel the same way as a validation failure to avoid nasty infinite loops
-            throw "You have been killed by \n" + killer;
+            throw __('status.killedBy', {killer: killer});
         }
         __game.sound.playSound('hurt');
         setTimeout(function() {
             __game._restartLevel();
         }, 0);
 
-        __map.displayChapter('You have been killed by \n' + killer + '!', 'death');
+        __map.displayChapter(__('status.killedByChapter', {killer: killer}), 'death');
     }, this);
 
     this.hasItem = wrapExposedMethod(function (itemName) {

@@ -81,9 +81,31 @@ release:
 	@java -jar $(yui-jar) -o $(js-target-min) $(js-target)
 	@echo "[ Done ]"
 
+# `make dist` merges scripts using the release launcher but skips the YUI
+# compressor, so it runs anywhere Java isn't installed (e.g. a Vercel builder)
+dist:
+	@echo "Building level file…\t\t\t\c"
+	@./compile_levels.sh $(mod-dir)
+	@echo "[ Done ]"
+	@echo "Merging JS files…\t\t\t\c"
+	@cat $(js-modules) > $(js-target)
+	@./parse_target.sh $(js-target) $(mod-dir)
+	@echo "[ Done ]"
+
+# `make site` assembles a self-contained static site in _site/
+# (this is what vercel.json runs as its build command)
+site: dist
+	@echo "Assembling _site…\t\t\t\c"
+	@rm -rf _site
+	@mkdir -p _site
+	@cp -R levels locales scripts styles images sound lib index.html favicon.ico _site
+	@if [ -d music ]; then cp -R music _site; fi
+	@echo "[ Done ]"
+
 # `make clean` removes built scripts
 clean:
 	@rm -f $(js-target) $(js-target-min)
+	@rm -rf _site
 
 # to use `make deploy` to deploy Untrusted to your own server, create
 # a deploy.sh script (ncftpput is helpful for uploading via FTP).

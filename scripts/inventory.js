@@ -93,7 +93,7 @@ Game.prototype.drawInventory = function () {
 	var game = this;
 
 	if (this.inventory.length > 0) {
-		$('#inventory').text('INVENTORY: ');
+		$('#inventory').text(__('ui.inventory'));
 
 		this.inventory.forEach(function (item) {
 			var object = game.map._getObjectDefinition(item);
@@ -119,7 +119,7 @@ Game.prototype.usePhone = function () {
 			this.validateCallback(player._phoneFunc);
 		} else {
 			this.sound.playSound('static');
-			this.map.writeStatus("Your function phone isn't bound to any function!");
+			this.map.writeStatus(__('status.phoneUnbound'));
 		}
 	}
 };

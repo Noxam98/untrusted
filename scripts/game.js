@@ -61,6 +61,40 @@ function Game(debugMode, startLevel) {
     this._isPlayerCodeRunning = function () { return __playerCodeRunning; };
     this._getLocalKey = function (key) { return (this._mod.length == 0 ? '' : this._mod + '.') + key; };
 
+    // Saved level code is per-language: the same level is a different file in
+    // each locale, so restoring an English solution into the Russian level
+    // would drop the player into a half-translated buffer. English keeps the
+    // original, unsuffixed key so existing saves survive.
+    this._getLevelStateKey = function (lvlNum) {
+        var key = 'level' + lvlNum + '.lastGoodState';
+        var locale = I18n.getLocale();
+        if (locale !== I18n.defaultLocale) {
+            key += '.' + locale;
+        }
+        return this._getLocalKey(key);
+    };
+
+    // Returns the source of a level in the active language, falling back to
+    // the default locale for levels that have not been translated yet.
+    this._getLevelSource = function (fileName) {
+        var path = 'levels/' + fileName;
+        var localized = this._levels[I18n.getLocale()];
+        if (localized && localized[path]) {
+            return localized[path];
+        }
+        return this._levels[I18n.defaultLocale][path];
+    };
+
+    // Bonus levels are fetched over the network rather than bundled, so the
+    // fallback is an HTTP 404 rather than a missing key.
+    this._getLocalizedLevelPath = function (filePath) {
+        var locale = I18n.getLocale();
+        if (locale === I18n.defaultLocale) {
+            return filePath;
+        }
+        return filePath.replace(/^levels\//, 'levels/locales/' + locale + '/');
+    };
+
     /* unexposed setters */
 
     this._setPlayerCodeRunning = function (pcr) { __playerCodeRunning = pcr; };
@@ -76,7 +110,7 @@ function Game(debugMode, startLevel) {
         // levelReached may be "81111" instead of "8" due to bug
         if (this._levelReached > this._levelFileNames.length) {
             for (var l = 1; l <= this._levelFileNames.length; l++) {
-                if (!localStorage[this._getLocalKey("level" + l + ".lastGoodState")]) {
+                if (!localStorage[this._getLevelStateKey(l)]) {
                     this._levelReached = l - 1;
                     break;
                 }
@@ -199,7 +233,7 @@ function Game(debugMode, startLevel) {
 
         var fileName = this._levelFileNames[levelNum - 1];
 
-        lvlCode = this._levels['levels/' + fileName];
+        lvlCode = this._getLevelSource(fileName);
         if (movingToNextLevel) {
             // save level state and create a gist
             editor.saveGoodState();
@@ -248,8 +282,9 @@ function Game(debugMode, startLevel) {
         var game = this;
         var editor = this.editor;
 
-        $.get(filePath, function (lvlCode) {
+        var loadLevel = function (lvlCode) {
             game._currentLevel = 'bonus';
+            // always the untranslated path, so resetting reloads the same level
             game._currentBonusLevel = filePath.split("levels/")[1];
             game._currentFile = null;
 
@@ -265,9 +300,19 @@ function Game(debugMode, startLevel) {
 
             // store the commands introduced in this level (for api reference)
             __commands = __commands.concat(editor.getProperties().commandsIntroduced).unique();
-            localStorage.setItem(this._getLocalKey('helpCommands'), __commands.join(';'));
-        }, 'text');
+            localStorage.setItem(game._getLocalKey('helpCommands'), __commands.join(';'));
+        };
 
+        // Try the translated bonus level, fall back to the original if this
+        // language doesn't have one.
+        var localizedPath = this._getLocalizedLevelPath(filePath);
+        if (localizedPath === filePath) {
+            $.get(filePath, loadLevel, 'text');
+        } else {
+            $.get(localizedPath, loadLevel, 'text').fail(function () {
+                $.get(filePath, loadLevel, 'text');
+            });
+        }
     };
 
     // how meta can we go?
@@ -290,7 +335,7 @@ function Game(debugMode, startLevel) {
     this._resetLevel = function( level ) {
         var game = this;
         var resetTimeout_msec = 2500;
-        var reset_game_msg = "To reset this level press ^4 again.";
+        var reset_game_msg = __('status.resetLevel');
 
         if ( this._resetTimeout != null ) {
             $('body, #buttons').css('background-color', '#000');

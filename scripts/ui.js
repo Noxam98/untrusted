@@ -146,7 +146,7 @@ Game.prototype.openMenu = function () {
                 $('#menuPane').hide();
             });
         } else {
-            levelButton.text('???').addClass('disabled');
+            levelButton.text(__('ui.lockedLevel')).addClass('disabled');
         }
         levelButton.appendTo('#menuPane #levels');
     });
@@ -215,7 +215,7 @@ Game.prototype.activateSuperMenu = function () {
             lvlButton.appendTo('#menuPane #bonus');
         });
 
-        $('#menuLabel').text('Menu+');
+        $('#menuLabel').text(__('ui.button.menuPlus'));
 
         game._superMenuActivated = true;
     }
@@ -238,7 +238,7 @@ Game.prototype.openHelp = function () {
                 categories.push(reference.category);
 
                 var categoryLink = $('<li class="category" id="'+ reference.category +'">');
-                categoryLink.text(reference.category)
+                categoryLink.text(__('reference.category.' + reference.category))
                     .click(function () {
                         $('#helpPaneSidebar .category').removeClass('selected');
                         $(this).addClass('selected');
@@ -258,8 +258,11 @@ Game.prototype.openHelp = function () {
             $commandTitle.text(reference.name)
                 .appendTo($command);
 
+            // reference.js stays the English source of record; translations
+            // live in locales/ and win whenever they exist.
+            var descriptionKey = 'reference.desc.' + command;
             var $commandDescription = $('<div class="commandDescription">');
-            $commandDescription.html(reference.description)
+            $commandDescription.html(I18n.has(descriptionKey) ? __(descriptionKey) : reference.description)
                 .appendTo($command);
         }
     });

@@ -355,6 +355,34 @@ body {
 	cursor: pointer;
 }
 
+#langSwitcher {
+	float: left;
+	margin: 0 0.8em 0 0;
+	font-size: 0.85em;
+	line-height: 1.6em;
+	letter-spacing: 0.05em;
+}
+
+#langSwitcher .langOption {
+	color: #777;
+	text-decoration: none;
+	cursor: pointer;
+}
+
+#langSwitcher .langOption:hover {
+	color: #ccc;
+}
+
+#langSwitcher .langOption.selected {
+	color: #0f0;
+	cursor: default;
+}
+
+#langSwitcher .langSep {
+	color: #444;
+	margin: 0 0.25em;
+}
+
 #drawingCanvas {
 	position: absolute;
 	border: 2px solid transparent;

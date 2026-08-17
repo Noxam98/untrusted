@@ -438,7 +438,7 @@ function CodeEditor(textAreaDomID, width, height, game) {
 
     this.saveGoodState = function () {
         var lvlNum = game._currentFile ? game._currentFile : game._currentLevel;
-        localStorage.setItem(game._getLocalKey('level' + lvlNum + '.lastGoodState'), JSON.stringify({
+        localStorage.setItem(game._getLevelStateKey(lvlNum), JSON.stringify({
             code: this.getCode(true),
             playerCode: this.getPlayerCode(),
             editableLines: editableLines,
@@ -451,7 +451,7 @@ function CodeEditor(textAreaDomID, width, height, game) {
     this.createGist = function () {
         var lvlNum = game._currentLevel;
         var filename = 'untrusted-lvl' + lvlNum + '-solution.js';
-        var description = 'Solution to level ' + lvlNum + ' in Untrusted: http://alex.nisnevich.com/untrusted/';
+        var description = __('status.gistDescription', {level: lvlNum});
         var data = {
             'files': {},
             'description': description,
@@ -468,14 +468,14 @@ function CodeEditor(textAreaDomID, width, height, game) {
             'data': JSON.stringify(data),
             'headers': { 'Authorization': 'token ' + atob(t) },
             'success': function (data, status, xhr) {
-                $('#savedLevelMsg').html('Level ' + lvlNum + ' solution saved at <a href="'
-                    + data['html_url'] + '" target="_blank">' + data['html_url'] + '</a>');
+                $('#savedLevelMsg').html(__('status.solutionSaved',
+                    {level: lvlNum, url: data['html_url']}));
             }
         });
     }
 
     this.getGoodState = function (lvlNum) {
-        return JSON.parse(localStorage.getItem(game._getLocalKey('level' + lvlNum + '.lastGoodState')));
+        return JSON.parse(localStorage.getItem(game._getLevelStateKey(lvlNum)));
     }
 
     this.refresh = function () {

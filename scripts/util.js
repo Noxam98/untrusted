@@ -14,6 +14,16 @@ function getParameterByName(name) {
     return results == null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
 }
 
+// Makes a translated string safe to embed inside a single-quoted JS literal,
+// which is how the loop-timeout guard gets injected into player code.
+function escapeForSingleQuotes(str) {
+    return String(str)
+        .replace(/\\/g, '\\\\')
+        .replace(/'/g, "\\'")
+        .replace(/\n/g, '\\n')
+        .replace(/\r/g, '\\r');
+}
+
 Array.prototype.remove = function(item) {
     // TODO Update to use Array.prototype.indexOf
     for(var i = this.length; i--;) {
