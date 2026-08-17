@@ -31,6 +31,8 @@ js-modules = scripts/util.js \
 			 scripts/reference.js \
 			 scripts/sound.js \
 			 scripts/validate.js \
+			 scripts/inference.js \
+			 scripts/autocomplete.js \
 			 scripts/ui.js \
 			 levels/levels.js \
 			 scripts/_launcher_release.js \
@@ -50,6 +52,8 @@ js-modules-debug = scripts/util.js \
 				   scripts/reference.js \
 				   scripts/sound.js \
 				   scripts/validate.js \
+				   scripts/inference.js \
+				   scripts/autocomplete.js \
 				   scripts/ui.js \
 				   levels/levels.js \
 				   scripts/_launcher_debug.js \

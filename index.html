@@ -22,6 +22,10 @@
 
 	<!-- i18n: the runtime first, then one file per language.
 	     To add a language, drop locales/<code>.js in and list it here. -->
+	<!-- error-tolerant JS parser, used by the editor's autocomplete -->
+	<script charset="utf-8" src="lib/acorn/acorn.js"></script>
+	<script charset="utf-8" src="lib/acorn/acorn_loose.js"></script>
+
 	<script charset="utf-8" src="scripts/i18n.js"></script>
 	<script charset="utf-8" src="locales/en.js"></script>
 	<script charset="utf-8" src="locales/ru.js"></script>

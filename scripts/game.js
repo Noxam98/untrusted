@@ -23,8 +23,10 @@ function Game(debugMode, startLevel) {
     this._mod = '//%MOD%';
 
     this._viewableScripts = [
+        'autocomplete.js',
         'codeEditor.js',
         'display.js',
+        'inference.js',
         'dynamicObject.js',
         'game.js',
         'inventory.js',
@@ -143,6 +145,7 @@ function Game(debugMode, startLevel) {
         this.enableShortcutKeys();
         this.enableButtons();
         this.setUpNotepad();
+        this.setUpAutocomplete();
 
         // Load help commands from local storage (if possible)
         if (localStorage.getItem(this._getLocalKey('helpCommands'))) {

@@ -37,6 +37,39 @@ Build your own mod in the `mods` directory:
 make mod=example_mod
 ```
 
+### Autocomplete
+
+The editor completes the game's own API. Ctrl-Space asks for suggestions; a
+`.` or a couple of identifier characters brings them up on their own. Enter or
+Tab accepts, Esc dismisses, arrows navigate.
+
+Two things make the suggestions specific rather than generic:
+
+* **It only offers what the player has unlocked.** The list is filtered
+  through the same set of commands that drives the API reference pane, so a
+  level never advertises a call from a level you haven't reached.
+* **It knows what is to the left of the dot.** `scripts/inference.js` parses
+  the buffer with acorn's error-tolerant parser, builds a scope chain, and
+  propagates types through it. `map.getPlayer()` yields a player, the `me` in
+  a `behavior` callback is a dynamic object, `map.getDynamicObjects()[0]` is
+  one too, and a variable holding any of them keeps its type across
+  assignments and nested functions. Inside a `map.defineObject()` literal it
+  offers the properties you'd write there; on a live object it offers the
+  methods you can call.
+
+The completion database is `reference.js` itself - signatures, categories and
+the method/property split all come from there, and descriptions come from the
+locale files, so the popup is translated along with everything else. Nothing
+outside that database is ever suggested, which also means the editor never
+proposes a word `validate.js` would reject.
+
+Suggestions are suppressed on locked lines, and an insertion that would push a
+line past the editor's 80-character limit falls back to a shorter form.
+
+The parser lives in `lib/acorn/` (acorn 5.7, MIT). CodeMirror's own `show-hint`
+addon is not used: the copy vendored here renders list items as bare strings,
+which can't show a signature and a description together.
+
 ### Translations (i18n)
 
 The game ships in English and Russian. Pick a language with the `EN | RU`

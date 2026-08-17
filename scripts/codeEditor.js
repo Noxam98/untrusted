@@ -31,6 +31,31 @@ function CodeEditor(textAreaDomID, width, height, game) {
         editableSections = es;
     }
 
+    this.getEditableLines = function () {
+        return editableLines;
+    }
+
+    this.getEditableSections = function () {
+        return editableSections;
+    }
+
+    // True if the player is allowed to type at this position - the
+    // autocomplete uses it to stay quiet on locked lines.
+    this.isEditablePosition = function (line, ch) {
+        if (editableLines.indexOf(line) !== -1) {
+            return true;
+        }
+        var sections = editableSections[line];
+        if (sections) {
+            for (var i = 0; i < sections.length; i++) {
+                if (ch > sections[i][0] && ch < sections[i][1]) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     // for debugging purposes
     log = function (text) {
         if (game._debugMode) {

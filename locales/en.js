@@ -87,6 +87,13 @@ I18n.register('en', 'English', {
     'console.cheating': 'If you can read this, you are cheating! D:',
     'console.hint': 'But really, you don\'t need this console to play the game. Walk around using arrow keys (or Vim keys), and pick up the computer ({symbol}). Then the fun begins!',
 
+    /* --- autocomplete --------------------------------------------------- */
+
+    'autocomplete.category.local': 'in scope',
+    'autocomplete.desc.local': 'A name defined in this level\'s code.',
+    'autocomplete.desc.localTyped': 'A name defined in this level\'s code. Holds: {type}.',
+    'autocomplete.desc.sandboxGlobal': 'A JavaScript built-in that level code is allowed to use.',
+
     /* --- API reference: category names ---------------------------------- */
 
     'reference.category.canvas': 'canvas',
